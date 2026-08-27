@@ -198,6 +198,98 @@ select:focus,input:focus{
 button{position:relative;z-index:5;pointer-events:auto;-webkit-user-select:none;user-select:none}
 .home button,.back,.top-btn,.management-nav button,.category-grid button,.score-grid button,.finish,.small-btn,.delete-one,.delete-bar button{cursor:pointer}
 </style>
+
+<style id="management-ui-v4">
+.management-nav button,
+.small-btn,
+.primary-btn,
+.danger-btn{
+  -webkit-tap-highlight-color:rgba(230,0,45,.12);
+  touch-action:manipulation;
+}
+.management-nav button{
+  background:#fff;
+  border:2px solid #e2cfd4;
+  color:#333;
+}
+.management-nav button.active{
+  background:linear-gradient(135deg,#e6002d,#f58220);
+  border-color:#e6002d;
+  color:#fff;
+}
+.primary-btn{
+  background:linear-gradient(135deg,#e6002d,#f58220)!important;
+  color:#fff!important;
+  border:1px solid #e6002d!important;
+  box-shadow:0 2px 6px rgba(230,0,45,.18);
+}
+.small-btn{
+  min-height:42px;
+  padding:0 13px;
+  font-size:13px;
+  line-height:1.15;
+  flex:0 0 auto;
+}
+.mgmt-row .small-btn{min-width:82px}
+.zone-admin-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 125px 66px;
+  gap:7px;
+  align-items:center;
+  padding:9px 0;
+  border-top:1px solid #eee;
+}
+.zone-admin-row .site-name-edit{
+  height:42px;
+  min-width:0;
+}
+.zone-admin-row .site-type-select{
+  height:42px;
+  min-width:0;
+}
+.type-admin-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 90px;
+  gap:7px;
+  align-items:center;
+  padding:9px 0;
+  border-top:1px solid #eee;
+}
+.type-name-edit{height:42px;min-width:0}
+.cat-action-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 96px 70px;
+  gap:7px;
+  align-items:center;
+}
+.cat-action-row .small-btn{
+  width:100%;
+  min-width:0;
+  padding:0 7px;
+  white-space:nowrap;
+}
+.question-score-row{
+  display:grid!important;
+  grid-template-columns:54px minmax(80px,1fr) 96px 66px;
+  gap:6px;
+  align-items:center;
+}
+.question-score-row .q-max-edit{height:42px;min-width:0}
+.question-score-row .small-btn{
+  width:100%;
+  min-width:0;
+  padding:0 6px;
+  white-space:nowrap;
+}
+@media(max-width:520px){
+  .zone-admin-row{grid-template-columns:minmax(0,1fr) 104px 58px}
+  .type-admin-row{grid-template-columns:minmax(0,1fr) 70px}
+  .question-score-row{grid-template-columns:48px minmax(65px,1fr) 88px 60px}
+  .question-score-row .small-btn{font-size:12px}
+  .cat-action-row{grid-template-columns:minmax(0,1fr) 88px 62px}
+  .cat-action-row .small-btn{font-size:12px}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -520,25 +612,103 @@ const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주
     renderSiteAdmin();renderTypeAdmin();
   }
   function renderSiteAdmin(){
-    const r=mgmtRegion.value; const arr=CFG.zones[r]||[];
-    siteAdminList.innerHTML=arr.map(s=>'<div class="mgmt-row"><select class="grow site-type-select" data-site="'+escapeHTML(s)+'">'+CFG.types.map(t=>'<option '+(CFG.siteTypes[s]===t?'selected':'')+'>'+escapeHTML(t)+'</option>').join("")+'</select><button class="small-btn danger-btn site-del" data-site="'+escapeHTML(s)+'" type="button">삭제</button></div>').join("");
-    siteAdminList.querySelectorAll(".site-type-select").forEach(el=>el.addEventListener("change",()=>{
-      CFG.siteTypes[el.dataset.site]=el.value;saveConfig(CFG);populateEvalSites();renderTypeAdmin();renderTypeSetting();
-    }));
-    siteAdminList.querySelectorAll(".site-del").forEach(el=>el.addEventListener("click",()=>{
-      const s=el.dataset.site;if(!confirm(s+" 구역을 삭제할까요?"))return;
-      CFG.zones[r]=(CFG.zones[r]||[]).filter(x=>x!==s);delete CFG.siteTypes[s];saveConfig(CFG);refreshMgmtZone();populateEvalSites();
-    }));
+    const r=mgmtRegion.value;
+    const arr=CFG.zones[r]||[];
+    siteAdminList.innerHTML=arr.map((s)=>'<div class="zone-admin-row">'+
+      '<input class="site-name-edit" data-old-site="'+escapeHTML(s)+'" value="'+escapeHTML(s)+'" aria-label="구역 이름">'+
+      '<select class="site-type-select" data-site="'+escapeHTML(s)+'">'+
+      CFG.types.map(t=>'<option value="'+escapeHTML(t)+'" '+(CFG.siteTypes[s]===t?'selected':'')+'>'+escapeHTML(t)+'</option>').join("")+
+      '</select>'+
+      '<button class="small-btn danger-btn site-del" data-site="'+escapeHTML(s)+'" type="button">삭제</button>'+
+      '</div>').join("");
+
+    siteAdminList.querySelectorAll(".site-type-select").forEach(el=>{
+      el.addEventListener("change",()=>{
+        CFG.siteTypes[el.dataset.site]=el.value;
+        saveConfig(CFG);
+        populateEvalSites();
+        renderTypeAdmin();
+        renderTypeSetting();
+      });
+    });
+
+    siteAdminList.querySelectorAll(".site-name-edit").forEach(el=>{
+      el.addEventListener("change",()=>{
+        const old=el.dataset.oldSite, n=el.value.trim();
+        if(!n || n===old){el.value=old;return;}
+        if(CFG.zones[r].includes(n)){
+          alert("이미 있는 구역입니다.");
+          el.value=old;
+          return;
+        }
+        CFG.zones[r]=CFG.zones[r].map(x=>x===old?n:x);
+        const tp=CFG.siteTypes[old]||CFG.types[0];
+        delete CFG.siteTypes[old];
+        CFG.siteTypes[n]=tp;
+        saveConfig(CFG);
+        refreshMgmtZone();
+        populateEvalSites();
+      });
+    });
+
+    siteAdminList.querySelectorAll(".site-del").forEach(el=>{
+      el.addEventListener("click",()=>{
+        const s=el.dataset.site;
+        if(!confirm(s+" 구역을 삭제할까요?"))return;
+        CFG.zones[r]=(CFG.zones[r]||[]).filter(x=>x!==s);
+        delete CFG.siteTypes[s];
+        saveConfig(CFG);
+        refreshMgmtZone();
+        populateEvalSites();
+      });
+    });
   }
+
   function renderTypeAdmin(){
-    typeAdminList.innerHTML=CFG.types.map(t=>'<div class="type-pill"><label>'+escapeHTML(t)+' <span class="help">('+Object.values(CFG.siteTypes).filter(x=>x===t).length+'개 구역)</span></label><button class="small-btn danger-btn type-del" data-type="'+escapeHTML(t)+'" type="button">삭제</button></div>').join("");
-    typeAdminList.querySelectorAll(".type-del").forEach(b=>b.addEventListener("click",()=>{
-      const t=b.dataset.type;
-      if(CFG.types.length<=1){alert("구역 유형은 최소 1개가 필요합니다.");return;}
-      if(Object.values(CFG.siteTypes).includes(t)){alert("현재 이 유형을 사용하는 구역이 있습니다. 먼저 구역의 유형을 다른 유형으로 변경해주세요.");return;}
-      if(!confirm(t+" 유형을 삭제할까요?"))return;
-      CFG.types=CFG.types.filter(x=>x!==t);delete CFG.typeCategories[t];saveConfig(CFG);refreshMgmtZone();renderTypeSetting();
-    }));
+    typeAdminList.innerHTML=CFG.types.map(t=>'<div class="type-admin-row">'+
+      '<input class="type-name-edit" data-old-type="'+escapeHTML(t)+'" value="'+escapeHTML(t)+'" aria-label="구역 유형 이름">'+
+      '<button class="small-btn danger-btn type-del" data-type="'+escapeHTML(t)+'" type="button">삭제</button>'+
+      '</div>').join("");
+
+    typeAdminList.querySelectorAll(".type-name-edit").forEach(el=>{
+      el.addEventListener("change",()=>{
+        const old=el.dataset.oldType,n=el.value.trim();
+        if(!n || n===old){el.value=old;return;}
+        if(CFG.types.includes(n)){
+          alert("이미 있는 구역 유형입니다.");
+          el.value=old;
+          return;
+        }
+        const idx=CFG.types.indexOf(old);
+        if(idx>=0)CFG.types[idx]=n;
+        Object.keys(CFG.siteTypes).forEach(s=>{
+          if(CFG.siteTypes[s]===old)CFG.siteTypes[s]=n;
+        });
+        CFG.typeCategories[n]=CFG.typeCategories[old]||[];
+        delete CFG.typeCategories[old];
+        saveConfig(CFG);
+        refreshMgmtZone();
+        renderTypeSetting();
+        populateEvalSites();
+      });
+    });
+
+    typeAdminList.querySelectorAll(".type-del").forEach(b=>{
+      b.addEventListener("click",()=>{
+        const t=b.dataset.type;
+        if(CFG.types.length<=1){alert("구역 유형은 최소 1개가 필요합니다.");return;}
+        if(Object.values(CFG.siteTypes).includes(t)){
+          alert("현재 이 유형을 사용하는 구역이 있습니다. 먼저 구역의 유형을 다른 유형으로 변경해주세요.");
+          return;
+        }
+        if(!confirm(t+" 유형을 삭제할까요?"))return;
+        CFG.types=CFG.types.filter(x=>x!==t);
+        delete CFG.typeCategories[t];
+        saveConfig(CFG);
+        refreshMgmtZone();
+        renderTypeSetting();
+      });
+    });
   }
   function refreshMgmtCats(){
     mgmtCatSelect.innerHTML="";
@@ -547,44 +717,109 @@ const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주
     renderCatEditor();
   }
   function renderCatEditor(){
-    const cat=mgmtCatSelect.value; if(!cat){catAdminEditor.innerHTML="";return;}
+    const cat=mgmtCatSelect.value;
+    if(!cat){catAdminEditor.innerHTML="";return;}
     const arr=CFG.categories[cat]||[];
-    catAdminEditor.innerHTML='<div class="mgmt-row"><input id="editCatName" class="grow" value="'+escapeHTML(cat)+'"><button id="renameCatBtn" class="small-btn primary-btn" type="button">대분류 수정</button><button id="deleteCatBtn" class="small-btn danger-btn" type="button">삭제</button></div>'+
+    catAdminEditor.innerHTML=
+      '<div class="mgmt-row cat-action-row">'+
+        '<input id="editCatName" class="grow" value="'+escapeHTML(cat)+'" aria-label="대분류 이름">'+
+        '<button id="renameCatBtn" class="small-btn primary-btn" type="button">대분류 수정</button>'+
+        '<button id="deleteCatBtn" class="small-btn danger-btn" type="button">삭제</button>'+
+      '</div>'+
       '<div class="mgmt-row"><button id="addQuestionBtn" class="small-btn primary-btn" style="width:100%" type="button">중분류 추가</button></div>'+
-      arr.map((q,idx)=>'<div class="mgmt-question" data-qno="'+q.no+'"><div class="mgmt-question-title">중분류 '+(idx+1)+'</div><input class="q-text-edit" value="'+escapeHTML(q.text)+'" placeholder="중분류 설명/문제"><div class="mgmt-row"><label style="margin:0;width:80px">배점</label><input class="q-max-edit" type="number" min="0.5" step="0.5" value="'+(Number(q.maxScore)||Math.max(...scoreOptions(cat,q.no)))+'"><button class="small-btn q-save" type="button">중분류 저장</button><button class="small-btn danger-btn q-del" type="button">삭제</button></div><div class="help">평가세부항목 / 기준</div>'+
-      (q.items||[]).map((it,j)=>'<div class="criteria-edit"><input class="grow item-edit" data-j="'+j+'" value="'+escapeHTML(it)+'"><button class="small-btn danger-btn item-del" data-j="'+j+'" type="button">삭제</button></div>').join("")+
-      '<div class="mgmt-row"><input class="grow item-new" placeholder="평가세부항목 추가"><button class="small-btn item-add" type="button">추가</button></div></div>').join("");
+      arr.map((q,idx)=>
+        '<div class="mgmt-question" data-qno="'+q.no+'">'+
+          '<div class="mgmt-question-title">중분류 '+(idx+1)+'</div>'+
+          '<input class="q-text-edit" value="'+escapeHTML(q.text)+'" placeholder="중분류 설명/문제">'+
+          '<div class="mgmt-row question-score-row">'+
+            '<label style="margin:0">배점</label>'+
+            '<input class="q-max-edit" type="number" min="0.5" step="0.5" value="'+(Number(q.maxScore)||Math.max(...scoreOptions(cat,q.no)))+'">'+
+            '<button class="small-btn primary-btn q-save" type="button">저장</button>'+
+            '<button class="small-btn danger-btn q-del" type="button">삭제</button>'+
+          '</div>'+
+          '<div class="help">평가세부항목 / 기준</div>'+
+          (q.items||[]).map((it,j)=>
+            '<div class="criteria-edit">'+
+              '<input class="grow item-edit" data-j="'+j+'" value="'+escapeHTML(it)+'">'+
+              '<button class="small-btn danger-btn item-del" data-j="'+j+'" type="button">삭제</button>'+
+            '</div>').join("")+
+          '<div class="mgmt-row">'+
+            '<input class="grow item-new" placeholder="평가세부항목 추가">'+
+            '<button class="small-btn primary-btn item-add" type="button">추가</button>'+
+          '</div>'+
+        '</div>'
+      ).join("");
+
     $("renameCatBtn").onclick=()=>{
-      const n=$("editCatName").value.trim();if(!n||n===cat)return;
+      const n=$("editCatName").value.trim();
+      if(!n||n===cat)return;
       if(CFG.categories[n]){alert("같은 이름의 대분류가 이미 있습니다.");return;}
-      CFG.categories[n]=CFG.categories[cat];delete CFG.categories[cat];
-      CFG.types.forEach(t=>{CFG.typeCategories[t]=(CFG.typeCategories[t]||[]).map(x=>x===cat?n:x);});
-      saveConfig(CFG);refreshMgmtCats();renderTypeSetting();populateCats();
+      CFG.categories[n]=CFG.categories[cat];
+      delete CFG.categories[cat];
+      CFG.types.forEach(t=>{
+        CFG.typeCategories[t]=(CFG.typeCategories[t]||[]).map(x=>x===cat?n:x);
+      });
+      saveConfig(CFG);
+      refreshMgmtCats();
+      renderTypeSetting();
+      populateCats();
     };
+
     $("deleteCatBtn").onclick=()=>{
       if(!confirm(cat+" 대분류를 삭제할까요?"))return;
-      delete CFG.categories[cat];CFG.types.forEach(t=>CFG.typeCategories[t]=(CFG.typeCategories[t]||[]).filter(x=>x!==cat));
-      saveConfig(CFG);refreshMgmtCats();renderTypeSetting();populateCats();
+      delete CFG.categories[cat];
+      CFG.types.forEach(t=>CFG.typeCategories[t]=(CFG.typeCategories[t]||[]).filter(x=>x!==cat));
+      saveConfig(CFG);
+      refreshMgmtCats();
+      renderTypeSetting();
+      populateCats();
     };
+
     $("addQuestionBtn").onclick=()=>{
-      const a=CFG.categories[cat]||[];const next=a.length?a.reduce((m,x)=>Math.max(m,Number(x.no)||0),0)+1:1;
-      a.push({no:next,text:"새 중분류",items:[],maxScore:10});CFG.categories[cat]=a;saveConfig(CFG);renderCatEditor();
+      const a=CFG.categories[cat]||[];
+      const next=a.length?a.reduce((m,x)=>Math.max(m,Number(x.no)||0),0)+1:1;
+      a.push({no:next,text:"새 중분류",items:[],maxScore:10});
+      CFG.categories[cat]=a;
+      saveConfig(CFG);
+      renderCatEditor();
     };
+
     catAdminEditor.querySelectorAll(".q-save").forEach(b=>b.addEventListener("click",()=>{
-      const box=b.closest(".mgmt-question"),no=Number(box.dataset.qno),q=CFG.categories[cat].find(x=>Number(x.no)===no);
-      q.text=box.querySelector(".q-text-edit").value.trim()||"새 중분류";q.maxScore=Number(box.querySelector(".q-max-edit").value)||10;
-      q.items=[...box.querySelectorAll(".item-edit")].map(x=>x.value.trim()).filter(Boolean);saveConfig(CFG);renderCatEditor();populateCats();
+      const box=b.closest(".mgmt-question"),no=Number(box.dataset.qno);
+      const q=CFG.categories[cat].find(x=>Number(x.no)===no);
+      if(!q)return;
+      q.text=box.querySelector(".q-text-edit").value.trim()||"새 중분류";
+      q.maxScore=Number(box.querySelector(".q-max-edit").value)||10;
+      q.items=[...box.querySelectorAll(".item-edit")].map(x=>x.value.trim()).filter(Boolean);
+      saveConfig(CFG);
+      renderCatEditor();
+      populateCats();
     }));
+
     catAdminEditor.querySelectorAll(".q-del").forEach(b=>b.addEventListener("click",()=>{
-      const no=Number(b.closest(".mgmt-question").dataset.qno);CFG.categories[cat]=CFG.categories[cat].filter(x=>Number(x.no)!==no);saveConfig(CFG);renderCatEditor();populateCats();
+      const no=Number(b.closest(".mgmt-question").dataset.qno);
+      CFG.categories[cat]=CFG.categories[cat].filter(x=>Number(x.no)!==no);
+      saveConfig(CFG);
+      renderCatEditor();
+      populateCats();
     }));
+
     catAdminEditor.querySelectorAll(".item-add").forEach(b=>b.addEventListener("click",()=>{
-      const box=b.closest(".mgmt-question"),no=Number(box.dataset.qno),inp=box.querySelector(".item-new"),v=inp.value.trim();if(!v)return;
-      CFG.categories[cat].find(x=>Number(x.no)===no).items.push(v);saveConfig(CFG);renderCatEditor();
+      const box=b.closest(".mgmt-question"),no=Number(box.dataset.qno);
+      const inp=box.querySelector(".item-new"),v=inp.value.trim();
+      if(!v)return;
+      const q=CFG.categories[cat].find(x=>Number(x.no)===no);
+      if(q)q.items.push(v);
+      saveConfig(CFG);
+      renderCatEditor();
     }));
+
     catAdminEditor.querySelectorAll(".item-del").forEach(b=>b.addEventListener("click",()=>{
       const box=b.closest(".mgmt-question"),no=Number(box.dataset.qno),j=Number(b.dataset.j);
-      CFG.categories[cat].find(x=>Number(x.no)===no).items.splice(j,1);saveConfig(CFG);renderCatEditor();
+      const q=CFG.categories[cat].find(x=>Number(x.no)===no);
+      if(q)q.items.splice(j,1);
+      saveConfig(CFG);
+      renderCatEditor();
     }));
   }
   function renderTypeSetting(){
