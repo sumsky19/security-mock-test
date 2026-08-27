@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>보안운영팀 모의테스트</title>
-<meta name="application-name" content="보안운영팀 모의테스트">
+<title>SK쉴더스 모의테스트</title>
+<meta name="application-name" content="SK쉴더스 모의테스트">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:#f4f5f7;color:#111;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
@@ -89,7 +89,7 @@ select:disabled{background:#eceef1;color:#999}
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="보안모의테스트">
+<meta name="apple-mobile-web-app-title" content="SK쉴더스 모의테스트">
 <link rel="apple-touch-icon" href="icon-192.png">
 
 
@@ -188,14 +188,24 @@ select:focus,input:focus{
 .section-note,.help{color:#777}
 </style>
 
+
+<style id="sk-mobile-fix">
+.header{display:flex;align-items:center;justify-content:center;gap:8px;min-height:58px;position:sticky;z-index:1000;cursor:default}
+.header-logo{height:32px;width:auto;object-fit:contain;background:#fff;border-radius:5px;padding:2px}
+.home-brand{text-align:center;margin-bottom:10px}
+.home-brand img{width:min(250px,78vw);height:auto;display:inline-block;object-fit:contain}
+.home h1{margin-top:4px}
+button{position:relative;z-index:5;pointer-events:auto;-webkit-user-select:none;user-select:none}
+.home button,.back,.top-btn,.management-nav button,.category-grid button,.score-grid button,.finish,.small-btn,.delete-one,.delete-bar button{cursor:pointer}
+</style>
 </head>
 <body>
 <div class="app">
-<div class="header">🔐 보안운영팀 모의테스트</div>
+<div class="header"><img src="skshieldus-logo.png" class="header-logo" alt="SK쉴더스"> <span>모의테스트</span></div>
 
 <section id="homePage" class="page active">
   <div class="home">
-    <h1>보안운영팀 모의테스트</h1>
+    <div class="home-brand"><img src="skshieldus-logo.png" alt="SK쉴더스"></div><h1>SK쉴더스 모의테스트</h1>
     <button id="startBtn" class="start" type="button">평가시작</button>
     <button id="viewBtn" class="view" type="button">평가조회</button>
     <button id="manageBtn" class="view" type="button">설정관리</button>
@@ -320,17 +330,28 @@ const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주
     const typeCategories={"건물":categoryNames.slice(0,4),"랩실(UT)":categoryNames.slice(4,5)};
     return {zones,categories,siteTypes,types:["건물","랩실(UT)"],typeCategories};
   }
+  // iPhone Safari/Chrome private mode can block localStorage. Use a memory fallback
+  // so the UI buttons still work even when persistent storage is unavailable.
+  const MEMORY_STORE={};
+  function safeGet(key){
+    try{return localStorage.getItem(key);}catch(e){return MEMORY_STORE[key]??null;}
+  }
+  function safeSet(key,value){
+    MEMORY_STORE[key]=value;
+    try{localStorage.setItem(key,value);}catch(e){}
+  }
   function getConfig(){
     try{
-      const saved=JSON.parse(localStorage.getItem(CONFIG_KEY)||"null");
+      const raw=safeGet(CONFIG_KEY);
+      const saved=raw?JSON.parse(raw):null;
       if(saved&&saved.zones&&saved.categories&&saved.siteTypes&&saved.types&&saved.typeCategories){
         return saved;
       }
     }catch(e){}
-    const c=defaultConfig(); saveConfig(c); return c;
+    return defaultConfig();
   }
   let CFG=getConfig();
-  function saveConfig(c){CFG=c;localStorage.setItem(CONFIG_KEY,JSON.stringify(c));}
+  function saveConfig(c){CFG=c;safeSet(CONFIG_KEY,JSON.stringify(c));}
 
   function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
   function currentSiteType(){return CFG.siteTypes[site.value]||"건물";}
@@ -460,8 +481,10 @@ const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주
     alert("평가가 저장되었습니다."); page(home); resetEval(); dateEl.value=today();
   }
 
-  function loadRecords(){try{return JSON.parse(localStorage.getItem("security_mock_records")||"[]");}catch(e){return[];}}
-  function saveRecords(a){localStorage.setItem("security_mock_records",JSON.stringify(a));}
+  function loadRecords(){
+    try{const raw=safeGet("security_mock_records");return raw?JSON.parse(raw):[];}catch(e){return[];}
+  }
+  function saveRecords(a){safeSet("security_mock_records",JSON.stringify(a));}
   function formatTime(iso){const d=new Date(iso);if(isNaN(d.getTime()))return"--:--";return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
   function monthKey(v){return String(v||"").slice(0,7);}
   function refreshMonths(){
@@ -613,13 +636,16 @@ const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주
   dateEl.value=today();Object.keys(CFG.zones).forEach(x=>region.add(new Option(x,x)));
   region.addEventListener("change",populateEvalSites);
   site.addEventListener("change",()=>{resetEval();populateCats();});
-  $("startBtn").addEventListener("click",()=>{dateEl.value=today();page(evalPage);populateEvalSites();populateCats();});
-  $("viewBtn").addEventListener("click",()=>{drawRecords();page(viewPage);});
-  $("manageBtn").addEventListener("click",()=>{page(managePage);showMgmtTab("zone");});
-  $("backEval").addEventListener("click",()=>page(home));
-  $("backView").addEventListener("click",()=>page(home));
-  $("backManage").addEventListener("click",()=>page(home));
-  finish.addEventListener("click",finishEvaluation);
+  function goStart(){dateEl.value=today();page(evalPage);populateEvalSites();populateCats();}
+  function goView(){drawRecords();page(viewPage);}
+  function goManage(){page(managePage);showMgmtTab("zone");}
+  $("startBtn").onclick=goStart;
+  $("viewBtn").onclick=goView;
+  $("manageBtn").onclick=goManage;
+  $("backEval").onclick=()=>page(home);
+  $("backView").onclick=()=>page(home);
+  $("backManage").onclick=()=>page(home);
+  finish.onclick=finishEvaluation;
   recordMonth.addEventListener("change",drawRecords);
   recordsEl.addEventListener("click",e=>{
     const del=e.target.closest(".delete-one");if(del){const id=Number(del.dataset.delete);if(confirm("이 평가를 삭제할까요?")){saveRecords(loadRecords().filter(r=>r.id!==id));drawRecords();}}
@@ -633,7 +659,7 @@ const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주
     if(!loadRecords().length){alert("삭제할 평가가 없습니다.");return;}
     if(confirm("저장된 평가를 전체 삭제할까요?")){saveRecords([]);drawRecords();}
   });
-  topBtn.addEventListener("click",()=>{try{window.scrollTo({top:0,left:0,behavior:"smooth"});}catch(e){window.scrollTo(0,0);}});
+  topBtn.onclick=()=>{try{window.scrollTo({top:0,left:0,behavior:"smooth"});}catch(e){window.scrollTo(0,0);}};
   page(home);
   try{drawRecords();}catch(e){}
 })();

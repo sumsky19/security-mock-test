@@ -1,6 +1,6 @@
 {
-  "name": "보안운영팀 모의테스트",
-  "short_name": "보안모의테스트",
+  "name": "SK쉴더스 모의테스트",
+  "short_name": "SK쉴더스 모의테스트",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
