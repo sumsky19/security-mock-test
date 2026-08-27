@@ -331,7 +331,81 @@ background:#fff!important;color:#222!important;font-size:16px!important;font-wei
 opacity:1!important;pointer-events:auto!important;position:relative!important;z-index:20!important;
 touch-action:manipulation!important;-webkit-appearance:auto!important;appearance:auto!important;
 }
-</style></head>
+</style>
+<style id="type-category-check-ui-v7">
+/* 유형별 평가설정: 대분류 텍스트와 어울리는 컴팩트 체크박스 */
+#typeCategoryChecks{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:6px!important;
+}
+#typeCategoryChecks .check-row{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-height:40px!important;
+  padding:7px 11px!important;
+  margin:0!important;
+  border:1px solid #e5e5e5!important;
+  border-radius:9px!important;
+  background:#fafafa!important;
+  font-size:14px!important;
+  line-height:1.25!important;
+  font-weight:600!important;
+  color:#333!important;
+}
+#typeCategoryChecks .check-row input[type="checkbox"]{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  width:20px!important;
+  height:20px!important;
+  min-width:20px!important;
+  min-height:20px!important;
+  margin:0!important;
+  border:2px solid #b8b8b8!important;
+  border-radius:5px!important;
+  background:#fff!important;
+  display:grid!important;
+  place-content:center!important;
+  flex:0 0 20px!important;
+  cursor:pointer!important;
+  touch-action:manipulation!important;
+}
+#typeCategoryChecks .check-row input[type="checkbox"]::before{
+  content:""!important;
+  width:10px!important;
+  height:10px!important;
+  transform:scale(0)!important;
+  transition:transform .12s ease-in-out!important;
+  box-shadow:inset 1em 1em #e6002d!important;
+  border-radius:2px!important;
+}
+#typeCategoryChecks .check-row input[type="checkbox"]:checked{
+  border-color:#e6002d!important;
+}
+#typeCategoryChecks .check-row input[type="checkbox"]:checked::before{
+  transform:scale(1)!important;
+}
+#typeCategoryChecks .check-row:has(input[type="checkbox"]:checked){
+  border-color:#f0a1ad!important;
+  background:#fff7f8!important;
+}
+@media(max-width:520px){
+  #typeCategoryChecks .check-row{
+    min-height:38px!important;
+    padding:6px 10px!important;
+    font-size:14px!important;
+  }
+  #typeCategoryChecks .check-row input[type="checkbox"]{
+    width:19px!important;
+    height:19px!important;
+    min-width:19px!important;
+    min-height:19px!important;
+    flex-basis:19px!important;
+  }
+}
+</style>
+</head>
 <body>
 <div class="app">
 <div class="header"><img src="skshieldus-logo.png" class="header-logo" alt="SK쉴더스"> <span>모의테스트</span></div>
