@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>보안운영팀 모의테스트</title>
+<meta name="application-name" content="보안운영팀 모의테스트">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#f4f5f7;color:#111;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+body{min-height:100vh}
+button,select,input{font:inherit}
+button{touch-action:manipulation}
+.app{max-width:760px;margin:0 auto;padding-bottom:40px}
+.header{position:sticky;top:0;z-index:100;background:#111;color:#fff;padding:15px 16px calc(15px + env(safe-area-inset-top));font-weight:800;font-size:18px}
+.page{display:none;padding:14px}
+.page.active{display:block}
+.home{min-height:calc(100vh - 70px);display:flex;flex-direction:column;justify-content:center;padding:28px}
+.home h1{text-align:center;font-size:28px;line-height:1.25;margin:0 0 34px;font-weight:900}
+.home button{width:100%;height:58px;border:0;border-radius:14px;margin:0 0 12px;font-weight:800;font-size:17px}
+.home .start{background:#111;color:#fff}
+.home .view{background:#fff;color:#111;border:1px solid #d8dadd}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.title{font-weight:900;font-size:17px}
+label{display:block;font-size:13px;font-weight:800;color:#5d636c;margin:13px 0 6px}
+select,input{width:100%;height:50px;border:1px solid #cfd3d8;border-radius:11px;background:#fff;padding:0 12px;font-size:16px;color:#111}
+select:disabled{background:#eceef1;color:#999}
+.section-note{font-size:12px;color:#777;margin-top:5px;line-height:1.5}
+.category-grid{display:grid;gap:10px}
+.category-grid button{width:100%;text-align:left;border:1px solid #dadde1;background:#fff;border-radius:12px;padding:14px;font-weight:800}
+.category-grid button.active{background:#111;color:#fff}
+.question{padding:14px 0;border-top:1px solid #eceef1}
+.question:first-child{border-top:0}
+.qtext{font-size:15px;font-weight:800;line-height:1.5}
+.criteria{margin:9px 0 0 18px;padding:0;color:#5c626a;font-size:13px;line-height:1.6}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}
+.score-grid button{height:44px;border:0;border-radius:10px;background:#e9ebee;font-weight:800}
+.score-grid button.selected{background:#111;color:#fff}
+.total{font-size:24px;font-weight:900;text-align:center;padding:14px 0}
+.finish{width:100%;height:54px;border:0;border-radius:13px;background:#111;color:#fff;font-size:17px;font-weight:900;opacity:.35}
+.finish.ready{opacity:1}
+.back{display:flex;align-items:center;gap:4px;padding:2px 0 12px;font-weight:800;font-size:14px}
+.top-btn{position:fixed;right:18px;bottom:18px;z-index:200;width:52px;height:52px;border:0;border-radius:50%;background:#111;color:#fff;font-size:23px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,.22);display:none}
+.record-toolbar{display:flex;gap:8px;align-items:center}
+.record-toolbar select{flex:1}
+.record-list .record{border:1px solid #e0e3e7;border-radius:13px;padding:12px;margin-top:10px;background:#fff}
+.record-head{display:flex;align-items:flex-start;gap:9px}
+.record-check{width:20px;height:20px;flex:0 0 auto;margin-top:2px}
+.record-title{font-weight:900;font-size:14px;line-height:1.45}
+.record-meta{font-size:12px;color:#666;margin-top:3px}
+.record-total{font-size:13px;font-weight:900;margin-top:8px}
+.record-result{margin-top:10px}
+.record-result summary{cursor:pointer;font-weight:800}
+.result-cat{margin-top:10px;padding-top:10px;border-top:1px solid #eee}
+.result-q{padding:8px 0;border-top:1px solid #f0f1f2;font-size:13px;line-height:1.5}
+.delete-one{margin-top:10px;width:100%;height:42px;border:0;border-radius:10px;background:#eee;font-weight:800}
+.delete-bar{display:flex;gap:8px;margin-top:12px}
+.delete-bar button{flex:1;height:45px;border:0;border-radius:10px;font-weight:800}
+.empty{padding:22px 8px;color:#888;text-align:center;font-size:13px}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="보안모의테스트">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+</head>
+<body>
+<div class="app">
+<div class="header">🔐 보안운영팀 모의테스트</div>
+
+<section id="homePage" class="page active">
+  <div class="home">
+    <h1>보안운영팀 모의테스트</h1>
+    <button id="startBtn" class="start" type="button">평가시작</button>
+    <button id="viewBtn" class="view" type="button">평가조회</button>
+  </div>
+</section>
+
+<section id="evalPage" class="page">
+  <div id="backEval" class="back">‹ 처음으로</div>
+
+  <div class="card">
+    <div class="title">① 평가 기본정보</div>
+    <label>권역</label>
+    <select id="region"><option value="">권역 선택</option></select>
+    <label>구역</label>
+    <select id="site" disabled><option value="">권역을 먼저 선택하세요</option></select>
+    <label>평가일</label>
+    <input id="date" type="date">
+    <label>피평가자</label>
+    <input id="evaluator" type="text" placeholder="피평가자 이름" autocomplete="off">
+  </div>
+
+  <div class="card">
+    <div class="title">② 평가항목</div>
+    <div class="section-note">구역 유형에 따라 평가할 대분류가 자동으로 정해집니다.</div>
+    <label>대분류</label>
+    <div id="categoryGrid" class="category-grid"></div>
+  </div>
+
+  <div id="questionCard" class="card" style="display:none">
+    <div class="title">③ 평가 점수</div>
+    <div id="questions"></div>
+    <div id="total" class="total">총점 0 / 100점</div>
+    <button id="finish" class="finish" type="button">평가완료</button>
+  </div>
+</section>
+
+<section id="viewPage" class="page">
+  <div id="backView" class="back">‹ 처음으로</div>
+  <div class="card">
+    <div class="title">평가조회</div>
+    <div class="record-toolbar">
+      <select id="recordMonth"><option value="ALL">전체 월</option></select>
+    </div>
+    <div id="records" class="record-list"></div>
+    <div class="delete-bar">
+      <button id="deleteSelected" type="button">선택삭제</button>
+      <button id="deleteAll" type="button">전체삭제</button>
+    </div>
+  </div>
+</section>
+
+<button id="topBtn" class="top-btn" type="button" aria-label="맨 위로">↑</button>
+</div>
+
+<script>
+const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주현관", "P&T5부현관", "P&T5 UT", "TSV UT", "TSV 주현관", "WT 주현관", "WT 부현관"], "B권역": ["기술지원센터 주현관", "기술지원 3F F/S LAB", "기술지원 4F 모델샵", "기술지원센터 6F", "QRT 검색대", "분석측정센터", "M10A주현관", "M10A UT", "R2 주현관", "FSG검색대", "통합자재창고"], "C권역": ["M14 FAB 주현관", "SUPEX Center 주현관", "SUPEX Center 부현관", "SUPEX Center 3F", "SUPEX Center 9F", "M14 1CORE UT", "M14 2CORE UT", "M14 3CORE UT", "M14 8CORE UT", "M14 9CORE UT", "M14 10CORE UT", "R&D 센터", "R3 주현관", "R3 UT"], "D권역": ["P&T1 주현관", "P&T1 부현관", "P&T1 2F LAB", "P&T1 5F LAB", "P&T1 5F SSD LAB", "P&T1 하역장", "M10C 주현관", "M10C 1F LAB", "M10C UT", "P&T4 주현관", "P&T4 8UT", "P&T4 11UT"], "E권역": ["M16 주현관", "M16 2CORE 부현관", "M16 4CORE 부현관", "M16 5CORE 부현관", "M16 6CORE 부현관", "M16 부품자동화창고", "M16 2CORE UT", "M16 3CORE UT", "M16 5CORE UT", "M16 6CORE UT", "SKHU"]}, "categories": {"문서감응기 검색": [{"no": 1, "text": "추가검색을 위한 사유 설명 및 추가검색대로 이동하기전 협조 안내하였는가?", "items": []}, {"no": 2, "text": "문서 검색을 위하여 사전 안내 및 절차에 준수하여 숙련있게 검색하는가?", "items": ["이벤트 발생자에 대해 문서감응기 감응 물품 소지여부를 확인 하였는가? - 보안문서, 연구개발 시료봉투, 보안USB 소지 여부 확인", "소지하고 있는 문서 또는 휴대폰이 없는지 확인하고 있을 경우 신체에서 분리시 후 재통과 요청", "재통과 요청은 2회까지 시행하며, 다른 Lane으로 재통과 시에도 이벤트가 발생되면 추가검색을 안내하는가?", "반출허가된 문서는 점검 후 문서감응기 우회 전달 하는가?"]}, {"no": 3, "text": "문서 반출입 절차에 대해 숙지하고 있는가?", "items": ["반출입증 제시 요청, 건물간 이동 모바일 처리 진행 여부를 정상적으로 진행하였는가?", "사원증 태깅 후 본인 확인 여부 및 모바일 기기 사용법을 정상적으로 진행 하였는가?", "포장시 포장 기준을 준수 하였는가?"]}, {"no": 4, "text": "위반문서의 내용을 확인하여 단순위규와 적발보고서 처리를 판단할 수 있는가?", "items": ["반출허가된 문서의 정의를 숙지하고 있는가? (개인문서 또는 보안문서 정의)", "문서의 중요도를 판단하여 회수 또는 분출할 수 있는 역량이 되는가?", "경위서 및 적발보고서 또는 반조장 보고체계가 숙지되어 있는가?"]}, {"no": 5, "text": "위규사항에 대한 설명과 올바른 절차를 안내하였는가?", "items": ["보안문서 반출입/건물간 이동 절차, 외부문서 반출입 절차"]}, {"no": 6, "text": "보안위규 문의에 대해 안내(대처)할 수 있는가?", "items": ["시정계획서 제출 기한에 대해 알고 있는가?(14일)"]}, {"no": 7, "text": "위규자의 돌발상황/행동 시(보안검색 불용, 보안검색 도주, 보안검색 불합리만 제기) 후속절차에 대해 SOP숙지하고 있는가?", "items": []}, {"no": 8, "text": "E-Security 위규등록 절차 방법을 숙지하여 진행하였는가?", "items": []}, {"no": 9, "text": "휴대폰 포렌식 검색을 위한 사전 안내 및 절차에 준수하여 숙련있게 검색하는가?", "items": ["보안스티커의 올바른 부착 방법 및 SSM 정상, 이상패턴 실행 화면을 숙지하여 확인하고 있는가?", "포렌식 이행 전 개인정보 수집 및 이용동의서를 안내하였는가?", "휴대폰 포렌식 검사에 대해 안내할 수 있는가?- 구성원, 외부인 포렌식 검사 시간", "휴대폰 포렌식 프로그램을 정상휴대폰 OS 별 포렌식 사용방법을 숙지하고 있는가? (iOS/ 안드로이드)", "포렌식 검색 결과에 따른 위규 등록 시 1차/2차를 구분할 수 있는가?", "포렌식 인식 불가 시 로컬 임시서버를 사용 할 수 있는가?"]}, {"no": 10, "text": "장비 장애 등 비정상 상황이 발생한 경우 정상 보고가 되었는가?", "items": ["관리자에게 장애 내용 공유", "점검중 팻말 설치 또는 추가 조치"]}, {"no": 11, "text": "반입금지 품목에 대해 숙지하고 있는가?", "items": ["스파이성 물품에 대한 종류를 인지하고 있는가?", "저장매체로 의심되는 경우 물품반출입 확인서 작성에 대한 안내를 하고 있는가?", "구성원과 외부인 차이점(예시: 노트북의 경우 구성원은 단지내 반입은 가능, 외부인은 단지내 반입 불가"]}, {"no": 12, "text": "고객응대, 근무자세(상태)을 바르게 실행하고 있는가?", "items": ["업무별 대응 방법(검색방법, 안내멘트) 및 고객응대 시 쿠션어 등 올바른 보안용어를 사용하고 있는가?", "두발, 근무복, 안전화 착용 등 올바른 근무자세를 유지하고 있는가?"]}], "X-RAY 검색": [{"no": 1, "text": "추가검색을 위한 사유 설명 및 추가검색대로 이동하기전 협조 안내하였는가?", "items": ["검색대 의심물품이 감지되어 추가검색을 위해 추가검색대로 이동협조 여부"]}, {"no": 2, "text": "XRay상 확인필요 소지품 검색을 위한 사전안내 및 절차에 준수하여 숙련있게 검색하는가?", "items": ["소지하고 있는 모든 소지품과 가방을 검색대에 올려주시기를 안내하는가?", "가방 속 물품 육안검색을 위해 잠시 대상자에게 직접 개방 요청 안내하는가?", "가방 속 물품 외 절차에 없는 검색요청을 하지 않는가?"]}, {"no": 3, "text": "저장장치 반출입 종류에 따른 보안 정책을 숙지하고 있는가?", "items": ["전산저장장치 종류의 반출시 EP센터 방문 안내를 하고 있는가?", "전산반출증 생성일로 부터 2주 이내 반출을 진행해야 하는 내용을 숙지하고 있는가?(자동 삭제)", "전산저장장치 반출입증의 장기/단기 구분으로 EP센터 포멧 여부를 안내하고 있는가?", "외부인 노트북의 화상캠 보안조치 사항을 확인하고 있는가?"]}, {"no": 4, "text": "물품 반출입증을 정확히 해석할 수 있는가?", "items": ["반출증 생성일, 코드 확인 및 물품의 관리번호, S/N, 수량 등이 정확히 실제 물품과 동일한지 확인하였는가?", "반출증상의 물품이 반입필요 인지 반입불요인지 확인하였는가?"]}, {"no": 5, "text": "위규사항에 대한 설명과 올바른 절차를 안내하였는가?", "items": ["보안문서 반출입/건물간 이동 절차, 외부문서 반출입 절차"]}, {"no": 6, "text": "보안위규 문의에 대해 안내(대처)할 수 있는가?", "items": ["시정계획서 제출 기한에 대해 알고 있는가?(14일)"]}, {"no": 7, "text": "위규자의 돌발상황/행동 시(보안검색 불응, 보안검색 도주, 보안검색 불합리/불만 제기) 후속절차에 대해 SOP숙지하고 있는가?", "items": []}, {"no": 8, "text": "E-Security 위규등록 절차 방법을 숙지하여 진행하였는가?", "items": []}, {"no": 9, "text": "휴대폰 포렌식 검색을 위한 사전 안내 및 절차에 준수하여 숙련있게 검색하는가?", "items": ["보안스티커의 올바른 부착 방법 및 SSM 정상, 이상패턴 실행 화면을 숙지하여 확인하고 있는가?", "포렌식 이행 전 개인정보 수집 및 이용동의서를 안내하였는가?", "휴대폰 포렌식 검사에 대해 안내할 수 있는가? - 구성원, 외부인 포렌식 검사 시간", "휴대폰 포렌식 프로그램을 정상휴대폰 OS 별 포렌식 사용방법을 숙지하고 있는가? (iOS / 안드로이드)", "포렌식 검색 결과에 따른 위규 등록 시 1차/2차를 구분할 수 있는가?", "포렌식 인식 불가 시 로컬 임시서버를 사용 할 수 있는가?"]}, {"no": 10, "text": "장비 장애 등 비정상 상황이 발생한 경우 정상 보고가 되었는가?", "items": ["관리자에게 장애 내용 공유", "점검중 팻말 설치 또는 추가 조치"]}, {"no": 11, "text": "반입금지 품목에 대해 숙지하고 있는가?", "items": ["스파이성 물품에 대한 종류를 인지하고 있는가?", "저장매체로 의심되는 경우 물품반출입 확인서 작성에 대한 안내를 하고 있는가?", "구성원과 외부인 차이점(예시: 노트북의 경우 구성원은 단지내 반입은 가능, 외부인은 단지내 반입 불가"]}, {"no": 12, "text": "고객응대, 근무자세(상태)올바르게 실행하고 있는가?", "items": ["업무별 대응 방법(검색방법, 안내멘트) 및 고객응대 시 쿠션어 등 올바른 보안용어를 사용하고 있는가?"]}], "MD검색": [{"no": 1, "text": "추가검색을 위한 사유 설명 및 추가검색대로 이동하기 전 협조 안내하였는가?", "items": ["검색대 의심물질이 감지되어 추가검색을 위해 추가검색대로의 이동 협조 여부"]}, {"no": 2, "text": "휴대용 핸드스캐너 검색을 위한 사전안내 및 절차에 준수하여 숙련있게 검색하는가?", "items": ["소지하고 있는 모든 소지품과 가방을 검색대에 올려주시기를 안내하는가?", "휴대용 핸드스캐너 검색 전 보안요원의 행동 모션으로 검색대상자의 이해를 돕는가? 양발, 양팔을 벌리고 손바닥은 편 상태로 안내", "휴대용 핸드스캐너 사용방법을 숙지하여 신속, 정확하게 검색하였는가?"]}, {"no": 3, "text": "저장장치 반출입 종류에 따른 보안 정책을 숙지하고 있는가?", "items": ["전산저장장치 종류의 반출시 EP센터 방문 안내를 하고 있는가?", "전산반출증 생성일로 부터 2주 이내 반출을 진행해야 하는 내용을 숙지하고 있는가?(자동 삭제)", "전산저장장치 반출입증의 장기/단기 구분으로 EP센터 포멧 여부를 안내하고 있는가?", "외부인 노트북의 화상캠 보안조치 사항을 확인하고 있는가?"]}, {"no": 4, "text": "반입금지물품 보관함에 대해 안내할 수 있는가?", "items": ["반입금지물품 보관함 보관 가능 물품에 대해 알고 있는가?- USB, CD, 노트북 등 전산저장장치", "반입금지물품 보관함 위반 종류에 대해 알고 있는가? - 24시간 경과, 반입금지 물품 외 보관"]}, {"no": 5, "text": "위규사항에 대한 설명과 올바른 절차를 안내하였는가?", "items": ["보안문서 반출입/건물간 이동 절차, 외부문서 반출입 절차"]}, {"no": 6, "text": "보안위규 문의에 대해 안내(대처)할 수 있는가?", "items": ["시정계획서 제출 기한에 대해 알고 있는가?(14일)"]}, {"no": 7, "text": "위규자의 돌발상황/행동 시(보안검색 불응, 보안검색 도주, 보안검색 불합리/불만 제기) 후속절차에 대해 SOP숙지하고 있는가?", "items": []}, {"no": 8, "text": "E-Security 위규등록 절차 방법을 숙지하여 진행하였는가?", "items": []}, {"no": 9, "text": "휴대폰 포렌식 검색을 위한 사전 안내 및 절차에 준수하여 숙련있게 검색하는가?", "items": ["보안스티커의 올바른 부착 방법 및 SSM 정상, 이상패턴 실행 화면을 숙지하여 확인하고 있는가?", "포렌식 이행 전 개인정보 수집 및 이용동의서를 안내하였는가?", "휴대폰 포렌식 검사에 대해 안내할 수 있는가? - 구성원, 외부인 포렌식 검사시간", "휴대폰 포렌식 프로그램을 정상휴대폰 OS 별 포렌식 사용방법을 숙지하고 있는가? (IOS/ 안드로이드)", "포렌식 검색 결과에 따른 위규 등록 시 1차/2차를 구분할 수 있는가?", "포렌식 인식 불가 시 로컬 임시서버를 사용 할 수 있는가?"]}, {"no": 10, "text": "장비 장애 등 비정상 상황이 발생한 경우 정상 보고가 되었는가?", "items": ["관리자에게 장애 내용 공유", "점검중 팻말 설치 또는 추가 조치"]}, {"no": 11, "text": "반입금지 품목에 대해 숙지하고 있는가?", "items": ["스파이성 물품에 대한 종류를 인지하고 있는가?", "저장매체로 의심되는 경우 물품반출입 확인서 작성에 대한 안내를 하고 있는가?", "구성원과 외부인 차이점(예시: 노트북의 경우 구성원은 단지내 반입은 가능, 외부인은 단지내 반입 불가"]}, {"no": 12, "text": "고객응대, 근무자세(상태)올바르게 실행하고 있는가?", "items": ["두발, 근무복, 안전화 착용 등 올바른 근무자세를 유지하고 있는가?", "업무별 대응 방법(검색방법, 안내멘트) 및 고객응대 시 쿠션어 등 올바른 보안용어를 사용하고 있는가?"]}], "물품반출입": [{"no": 1, "text": "물품 반입/반출시 프로세스를 숙지하고 있는가?", "items": ["질문 : 건물에서 물품 반출입 프로세스를 숙지 하고 있는지?", "L 답:", "외곽에서 물품 반출입 프로세스를 숙지 하고 있는지?", "물품반", "물품반출입시 검수 하는 사유를 알고 있는지?", "물품 검수시 품명, 수량, S/N 등을 확인하고 있는가?", "대량물품 검수시 확인 어떻게 확인하고 있는가?(샘플링 or 전부 확인)", "물품 반출시 신청항목에 없는 물품이 포함되어 있다면 어떻게 안내를 하고 위규조치를 하고 있는가?", "물품 반입시 신청항목에 없는 물품이 포함되어 있다면 추가 반입신청 후 반입을 안내 하고 있는가?"]}, {"no": 2, "text": "전산기기 반입/반출시 프로세를 숙지하고 있는가?", "items": ["전산기기 반출시 확인 해야 하는 사항은?", "전산기기 반입시 확인 해야 하는 사항은?", "전산기기 반출입 오처리시 조치해야 할 사항은?", "전신기기 반출시 품명, 수량, S/N 등을 확인하고 있는가?", "전산가기 반입시 품명, 수량, S/N 등을 확인하고 있는가?", "상시반출스티커가 부착이 되어 있다면 어떻게 지원을 진행하고 있는가?", "전산기기 반출입시 반출증 및 상시반출스티커 없이 반출입시 어떻게 안내를 하고 있는가?"]}, {"no": 3, "text": "Wafer 반입/반출시 프로세스를 숙지하고 있는가?", "items": ["Patten or Non-Patten Wafer를 확인하여 반출입 진행을 하고 있는지?", "Wafer 반출시 EA 표기가 아닌 SET로 표기되어 반출이 된다면 어떻게 안내를 해야 하는지?"]}, {"no": 4, "text": "시료 변형 여부 확인 후 반입/반출 프로세스를 숙지하고 있는가?", "items": ["시료 변형 여부 확인 후 반출입을 지원하고 있는가?"]}, {"no": 5, "text": "문서 반입/반출시 프로세스를 숙지하고 있는가?", "items": ["보안문서 반출입 절차를 숙지 하고 있는가?"]}, {"no": 6, "text": "사내 우체국을 통한 문서 반출 처리 프로세스를 숙지하고 있는가?", "items": ["물품반출입 SOP 중 사내 우체국을 통한 문서 반출입 프로세스를 숙지하여 이행하고 있는지?(우편물 의뢰서)"]}, {"no": 7, "text": "모바일기기 건물간이동 반입/반출시 프로세스를 숙지하고 있는가?", "items": ["업무용모바일기기 스티커 및 SSM 여부를 확인하여 반출입 지원을 하고 있는지?", "업무용모바일기기 + 반출금지 스티커 부착 및 SSM 설치가 안되어 있다면 안내해야 하는 사항을 알고 있는지?", "문서 건물간이동 반입/반출 프로세스를 숙지하고 있는가?"]}, {"no": 8, "text": "문서 건물간 이동시 프로세스를 숙지하고 있는지?", "items": ["문서 건물간 이동 시 프로세스를 숙지하고 있는가?", "단순 개인 문서의 경우 반출입시 어떻게 지원을 하면 되는지?", "건물간 이동 요청시 문서 봉인 기준을 준수하고 있는지?"]}, {"no": 9, "text": "전산기기 건물간이동 반입/반출시 프로세를 숙지하고 있는가?", "items": ["전산기기 건물간이동시 반출입 프로세스를 준수하여 지원하고 있는가?", "전산기기 건물간이동 요청시 확인 해야 하는 사항은 어떻한 부분을 확인 해야 하는지?", "구성원 및 외부인 건물간 이동시 확인 해야 하는 사항을 알고 있는가?"]}, {"no": 10, "text": "전산저장장치 건물간이동 반입/반출 프로세를 숙지하고 있는가?", "items": ["구성원 전산저정장치 건물간 이동시 확인 사항 및 봉인 방법에 대하여 숙지하고 있는가?", "외부인 전산저항장치 건물간 이동시 확인 사항 및 봉인 방법에 대하여 숙지하고 있는가?", "전산 저장장치 건물간 이동 불가한 경우 안내 방법을 알고 있는가?"]}, {"no": 11, "text": "비보안구역 물품 반출입 프로세를 숙지하고 있는가?", "items": ["비보안구역으로 물품을 건물간 이동시 어떻게 조치를 해야 하지 숙지 하고 있는지?", "비보안구역으로 물품을 반출 후 다시 반출을 진행한 건물로 반입할 경우 어떻게 처리 해야 하는가?"]}], "랩실 검색": [{"no": 1, "text": "추가검색을 위한 사유 설명 및 추가검색대로 이동하기 전 협조 안내하였는가?", "items": ["검색대 의심물질이 감지되어 추가검색을 위해 추가검색대로의 이동 협조 여부"]}, {"no": 2, "text": "휴대용 핸드스캐너 검색을 위한 사전안내 및 절차에 준수하여 숙련있게 검색하는가?", "items": ["소지하고 있는 모든 소지품과 가방을 검색대에 올려주시기를 안내하는가?", "휴대용 핸드스캐너 검색 전 보안요원의 행동 모션으로 검색대상자의 이해를 돕는가? - 양발, 양팔을 벌리고 손바닥은 편 상태로 안내", "휴대용 핸드스캐너 사용방법을 숙지하여 신속, 정확하게 검색하였는가?"]}, {"no": 3, "text": "랩실 검색 절차방법을 숙지하고 있는가?", "items": ["신체 하단 부위 알람 발생시 협조요청을 하는가?"]}, {"no": 4, "text": "X-Ray상 확인필요 소지품 검색을 위한 사전안내 및 절차에 준수하여 숙련있게 검색하는가?", "items": ["소지하고 있는 모든 소지품과 가방을 검색대에 올려주시기를 안내하는가?", "가방 속 물품 육안검색을 위해 잠시 대상자에게 직접 개방 요청 안내하는가?", "가방 속 물품 외 절차에 없는 검색요청을 하지 않는가?"]}, {"no": 5, "text": "반입금지물품 보관함에 대해 안내할 수 있는가?", "items": ["반입금지물품 보관함 보관 가능 물품에 대해 알고 있는가?- USB, CD, 노트북 등 전산저장장치", "반입금지물품 보관함 위반 종류에 대해 알고 있는가? - 24시간 경과, 반입금지 물품 외 보관"]}, {"no": 6, "text": "위규사항에 대한 설명과 올바른 절차를 안내하였는가?", "items": ["보안문서 반출입/건물간 이동 절차, 외부문서 반출입 절차"]}, {"no": 7, "text": "위규자의 돌발상황/행동 시(보안검색 불응, 보안검색 도주, 보안검색 불합리/불만 제기) 후속절차에 대해 SOP숙지하고 있는가?", "items": []}, {"no": 8, "text": "E-Security 위규등록 절차 방법을 숙지하여 진행하였는가?", "items": []}, {"no": 9, "text": "장비 장애 등 비정상 상황이 발생한 경우 정상 보고가 되었는가?", "items": ["관리자에게 장애 내용 공유", "점검중 팻말 설치 또는 추가 조치"]}, {"no": 10, "text": "고객응대, 근무자세(상태)올바르게 실행하고 있는가?", "items": ["업무별 대응 방법(검색방법, 안내멘트) 및 고객응대 시 쿠션어 등 올바른 보안용어를 사용하고 있는가?", "두발, 근무복, 안전화 착용 등 올바른 근무자세를 유지하고 있는가?"]}]}};
+
+(function(){
+  const $=id=>document.getElementById(id);
+  const home=$("homePage"), evalPage=$("evalPage"), viewPage=$("viewPage");
+  const region=$("region"), site=$("site"), dateEl=$("date"), evaluator=$("evaluator");
+  const categoryGrid=$("categoryGrid"), questionCard=$("questionCard"), questionsEl=$("questions");
+  const totalEl=$("total"), finish=$("finish"), recordsEl=$("records"), recordMonth=$("recordMonth"), topBtn=$("topBtn");
+
+  const CATS=["문서감응기 검색","X-RAY 검색","MD검색","물품반출입","랩실 검색"];
+  let selectedCategory="";
+  let scoresByCategory={};
+
+  function today(){
+    const d=new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function isUT(){
+    return /UT/i.test(site.value||"");
+  }
+  function requiredCats(){
+    return isUT()?["랩실 검색"]:["문서감응기 검색","X-RAY 검색","MD검색","물품반출입"];
+  }
+  function scoreOptions(cat,no){
+    if(cat==="물품반출입") return (no===4||no===5)?[5,4.5,4,3.5,3]:[10,9,8,7,6];
+    if(no===1||no===8||no===11||no===12) return [5,4.5,4,3.5,3];
+    return [10,9,8,7,6];
+  }
+  function page(p){
+    [home,evalPage,viewPage].forEach(x=>x.classList.remove("active"));
+    p.classList.add("active");
+    topBtn.style.display=(p===evalPage)?"block":"none";
+    window.scrollTo(0,0);
+  }
+  function resetEval(){
+    scoresByCategory={}; selectedCategory="";
+    categoryGrid.innerHTML="";
+    questionsEl.innerHTML="";
+    questionCard.style.display="none";
+    totalEl.textContent="총점 0 / 100점";
+    finish.classList.remove("ready");
+    finish.disabled=true;
+  }
+  function populateCats(){
+    categoryGrid.innerHTML="";
+    const req=requiredCats();
+    req.forEach(cat=>{
+      const b=document.createElement("button");
+      b.type="button"; b.textContent=cat;
+      if(cat===selectedCategory)b.classList.add("active");
+      b.addEventListener("click",()=>selectCat(cat));
+      categoryGrid.appendChild(b);
+    });
+  }
+  function selectCat(cat){
+    selectedCategory=cat;
+    populateCats();
+    renderCategory();
+  }
+  function renderCategory(){
+    questionsEl.innerHTML="";
+    const arr=DATA.categories[selectedCategory]||[];
+    arr.forEach(q=>{
+      const box=document.createElement("div");
+      box.className="question";
+      box.dataset.no=q.no;
+      let h='<div class="qtext">'+escapeHTML(q.no+". "+q.text)+'</div>';
+      if(q.items&&q.items.length){
+        h+='<ul class="criteria">';
+        q.items.forEach(it=>h+='<li>'+escapeHTML(it)+'</li>');
+        h+='</ul>';
+      }
+      h+='<div class="score-grid">';
+      scoreOptions(selectedCategory,q.no).forEach(v=>{
+        h+='<button type="button" data-v="'+v+'">'+v+'점</button>';
+      });
+      h+='</div>';
+      box.innerHTML=h;
+      box.querySelectorAll(".score-grid button").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          box.querySelectorAll(".score-grid button").forEach(x=>x.classList.remove("selected"));
+          btn.classList.add("selected");
+          saveCurrentCategory();
+        });
+      });
+      questionsEl.appendChild(box);
+    });
+    questionCard.style.display=arr.length?"block":"none";
+    restoreCurrentCategory();
+    saveCurrentCategory();
+  }
+  function saveCurrentCategory(){
+    if(!selectedCategory)return false;
+    const arr=[...questionsEl.querySelectorAll(".question")];
+    if(!arr.length)return false;
+    const obj={}; let complete=true, sum=0, max=0;
+    arr.forEach(q=>{
+      const no=Number(q.dataset.no);
+      max+=Math.max(...scoreOptions(selectedCategory,no));
+      const b=q.querySelector(".score-grid button.selected");
+      if(!b) complete=false;
+      else { obj[String(no)]=Number(b.dataset.v); sum+=Number(b.dataset.v); }
+    });
+    if(complete)scoresByCategory[selectedCategory]=obj;
+    else delete scoresByCategory[selectedCategory];
+    updateCurrentTotal(sum,max);
+    updateFinish();
+    return complete;
+  }
+  function restoreCurrentCategory(){
+    const saved=scoresByCategory[selectedCategory];
+    if(!saved)return;
+    [...questionsEl.querySelectorAll(".question")].forEach(q=>{
+      const v=saved[String(q.dataset.no)];
+      if(v===undefined)return;
+      const b=q.querySelector('.score-grid button[data-v="'+v+'"]');
+      if(b)b.classList.add("selected");
+    });
+  }
+  function updateCurrentTotal(sum,max){
+    totalEl.textContent=selectedCategory==="물품반출입" ? ("현재 점수 "+sum+" / "+max+"점") : ("현재 점수 "+sum+" / "+max+"점");
+  }
+  function updateFinish(){
+    const req=requiredCats();
+    finish.disabled=!req.every(c=>!!scoresByCategory[c]);
+    finish.classList.toggle("ready",!finish.disabled);
+  }
+  function finishEvaluation(){
+    saveCurrentCategory();
+    const req=requiredCats();
+    if(!req.every(c=>!!scoresByCategory[c])){
+      const missing=req.find(c=>!scoresByCategory[c]);
+      alert(missing+" 평가를 모두 입력해주세요.");
+      selectCat(missing);
+      return;
+    }
+    if(!region.value||!site.value||!dateEl.value||!evaluator.value.trim()){
+      alert("권역, 구역, 평가일, 피평가자를 확인해주세요.");
+      return;
+    }
+    let grand=0, count=req.length;
+    const categories={};
+    req.forEach(cat=>{
+      const src=DATA.categories[cat]||[];
+      let sum=0,max=0,qs=[];
+      src.forEach(q=>{
+        const opts=scoreOptions(cat,q.no);
+        max+=Math.max(...opts);
+        const score=Number(scoresByCategory[cat][String(q.no)]);
+        sum+=score;
+        qs.push({no:q.no,text:q.text,criteria:q.items||[],score:score});
+      });
+      categories[cat]={sum,max,questions:qs};
+      grand+=sum;
+    });
+    const normalized=Math.round((grand/count)*10)/10;
+    const all=loadRecords();
+    all.unshift({
+      id:Date.now(),
+      region:region.value,
+      site:site.value,
+      date:dateEl.value,
+      evaluator:evaluator.value.trim(),
+      savedAt:new Date().toISOString(),
+      categories:categories,
+      score:normalized.toFixed(1)+" / 100"
+    });
+    saveRecords(all);
+    alert("평가가 저장되었습니다.");
+    // Return to first page exactly as requested.
+    page(home);
+    resetEval();
+    dateEl.value=today();
+  }
+  function loadRecords(){
+    try{return JSON.parse(localStorage.getItem("security_mock_records")||"[]");}
+    catch(e){return[];}
+  }
+  function saveRecords(a){
+    localStorage.setItem("security_mock_records",JSON.stringify(a));
+  }
+  function formatTime(iso){
+    const d=new Date(iso);
+    if(isNaN(d.getTime()))return "--:--";
+    return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+  }
+  function monthKey(v){return String(v||"").slice(0,7);}
+  function refreshMonths(){
+    const months={};
+    loadRecords().forEach(r=>{const m=monthKey(r.date); if(m)months[m]=1;});
+    const old=recordMonth.value;
+    recordMonth.innerHTML='<option value="ALL">전체 월</option>';
+    Object.keys(months).sort().reverse().forEach(m=>recordMonth.add(new Option(m.slice(0,4)+"년 "+m.slice(5)+"월",m)));
+    if(months[old])recordMonth.value=old;
+  }
+  function drawRecords(){
+    refreshMonths();
+    const f=recordMonth.value, all=loadRecords();
+    const list=f==="ALL"?all:all.filter(r=>monthKey(r.date)===f);
+    if(!list.length){recordsEl.innerHTML='<div class="empty">해당 월에 저장된 평가가 없습니다.</div>';return;}
+    recordsEl.innerHTML=list.map(r=>{
+      let cats="";
+      Object.keys(r.categories||{}).forEach(cat=>{
+        const c=r.categories[cat];
+        cats+='<div class="result-cat"><b>'+escapeHTML(cat)+'</b> · '+c.sum+' / '+c.max+'<div>';
+        (c.questions||[]).forEach(q=>{
+          cats+='<div class="result-q"><b>'+q.no+'. '+escapeHTML(q.text)+'</b><br>';
+          if(q.criteria&&q.criteria.length){
+            cats+='<span style="color:#666">'+q.criteria.map(escapeHTML).join("<br>")+'</span><br>';
+          }
+          cats+=q.score+'점</div>';
+        });
+        cats+='</div></div>';
+      });
+      return '<div class="record">'+
+        '<div class="record-head"><input class="record-check" type="checkbox" data-id="'+r.id+'">'+
+        '<div><div class="record-title">'+escapeHTML(r.site||"구역 미상")+' . '+escapeHTML(r.date)+' . '+formatTime(r.savedAt)+'</div>'+
+        '<div class="record-meta">피평가자: '+escapeHTML(r.evaluator||"")+'</div></div></div>'+
+        '<div class="record-total">총점 '+escapeHTML(r.score)+'</div>'+
+        '<details class="record-result"><summary>▶평가결과 조회</summary>'+cats+'</details>'+
+        '<button class="delete-one" type="button" data-delete="'+r.id+'">이 평가 삭제</button>'+
+        '</div>';
+    }).join("");
+  }
+  function escapeHTML(v){
+    return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+  }
+
+  // Initial form values
+  dateEl.value=today();
+  Object.keys(DATA.zones).forEach(x=>region.add(new Option(x,x)));
+
+  region.addEventListener("change",()=>{
+    site.innerHTML='<option value="">구역 선택</option>';
+    if(region.value){
+      DATA.zones[region.value].forEach(x=>site.add(new Option(x,x)));
+      site.disabled=false;
+    }else{
+      site.disabled=true;
+    }
+    resetEval();
+  });
+  site.addEventListener("change",()=>{
+    resetEval();
+    populateCats();
+  });
+
+  $("startBtn").addEventListener("click",()=>{dateEl.value=today();page(evalPage);});
+  $("viewBtn").addEventListener("click",()=>{drawRecords();page(viewPage);});
+  $("backEval").addEventListener("click",()=>page(home));
+  $("backView").addEventListener("click",()=>page(home));
+  finish.addEventListener("click",finishEvaluation);
+  recordMonth.addEventListener("change",drawRecords);
+  recordsEl.addEventListener("click",e=>{
+    const del=e.target.closest(".delete-one");
+    if(del){
+      const id=Number(del.dataset.delete);
+      if(confirm("이 평가를 삭제할까요?")){
+        saveRecords(loadRecords().filter(r=>r.id!==id));
+        drawRecords();
+      }
+    }
+  });
+  $("deleteSelected").addEventListener("click",()=>{
+    const ids=[...document.querySelectorAll(".record-check:checked")].map(x=>Number(x.dataset.id));
+    if(!ids.length){alert("삭제할 평가를 선택해주세요.");return;}
+    if(confirm("선택한 평가를 삭제할까요?")){
+      saveRecords(loadRecords().filter(r=>!ids.includes(Number(r.id))));
+      drawRecords();
+    }
+  });
+  $("deleteAll").addEventListener("click",()=>{
+    if(!loadRecords().length){alert("삭제할 평가가 없습니다.");return;}
+    if(confirm("저장된 평가를 전체 삭제할까요?")){
+      saveRecords([]);
+      drawRecords();
+    }
+  });
+  topBtn.addEventListener("click",()=>{
+    try{window.scrollTo({top:0,left:0,behavior:"smooth"});}catch(e){window.scrollTo(0,0);}
+  });
+  page(home);
+  try{drawRecords();}catch(e){}
+})();
+</script>
+
+<script>
+window.addEventListener("load", function(){
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(function(){});
+  }
+});
+</script>
+
+</body>
+<!-- Chrome/Safari standalone build: no external dependencies -->
+</html>
