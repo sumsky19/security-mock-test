@@ -323,7 +323,15 @@ button{position:relative;z-index:5;pointer-events:auto;-webkit-user-select:none;
  .mgmt-head .title{font-size:17px}
 }
 </style>
-</head>
+<style id="type-select-fix-v6">
+#typeSettingSelect{
+display:block!important;width:100%!important;min-height:46px!important;height:46px!important;
+padding:0 14px!important;border:2px solid #e6002d!important;border-radius:10px!important;
+background:#fff!important;color:#222!important;font-size:16px!important;font-weight:700!important;
+opacity:1!important;pointer-events:auto!important;position:relative!important;z-index:20!important;
+touch-action:manipulation!important;-webkit-appearance:auto!important;appearance:auto!important;
+}
+</style></head>
 <body>
 <div class="app">
 <div class="header"><img src="skshieldus-logo.png" class="header-logo" alt="SK쉴더스"> <span>모의테스트</span></div>
@@ -863,10 +871,19 @@ const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주
     }));
   }
   function renderTypeSetting(){
-    typeSettingSelect.innerHTML=CFG.types.map(t=>'<option>'+escapeHTML(t)+'</option>').join("");
-    if(!typeSettingSelect.value&&CFG.types.length)typeSettingSelect.value=CFG.types[0];
-    const t=typeSettingSelect.value,selected=CFG.typeCategories[t]||[];
-    typeCategoryChecks.innerHTML=Object.keys(CFG.categories).map((c,i)=>'<label class="check-item"><input type="checkbox" value="'+escapeHTML(c)+'" '+(selected.includes(c)?"checked":"")+'><span>대분류 '+(i+1)+'. '+escapeHTML(c)+'</span></label>').join("");
+    const current = typeSettingSelect.value;
+    typeSettingSelect.innerHTML = CFG.types.map(t =>
+      '<option value="'+escapeHTML(t)+'">'+escapeHTML(t)+'</option>'
+    ).join("");
+    if(CFG.types.includes(current)) typeSettingSelect.value=current;
+    else if(CFG.types.length) typeSettingSelect.value=CFG.types[0];
+
+    const selected = typeSettingSelect.value;
+    const selectedCats = CFG.typeCategories[selected] || [];
+    typeCategoryChecks.innerHTML = Object.keys(CFG.categories||{}).map(c =>
+      '<label class="check-row"><input type="checkbox" value="'+escapeHTML(c)+'" '+
+      (selectedCats.includes(c)?"checked":"")+'>'+escapeHTML(c)+'</label>'
+    ).join("");
   }
   function populateEvalSites(){
     const old=site.value;site.innerHTML='<option value="">구역 선택</option>';
@@ -973,12 +990,19 @@ const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주
   };
 
   mgmtCatSelect.addEventListener("change",renderCatEditor);
-  typeSettingSelect.addEventListener("change",renderTypeSetting);
+  function onTypeSettingChange(){
+    const selected=typeSettingSelect.value;
+    if(!CFG.typeCategories[selected]) CFG.typeCategories[selected]=[];
+    renderTypeSetting();
+  }
+  typeSettingSelect.onchange=onTypeSettingChange;
+  typeSettingSelect.oninput=onTypeSettingChange;
 
   $("saveZoneMgmtBtn").onclick=()=>commitMgmtDraft("구역 관리");
   $("saveCatMgmtBtn").onclick=()=>commitMgmtDraft("평가항목 관리");
   $("saveTypeMgmtBtn").onclick=()=>{
-    const t=typeSettingSelect.value;
+    const t=typeSettingSelect.options[typeSettingSelect.selectedIndex]?.value || typeSettingSelect.value;
+    if(!t){alert("구역 유형을 먼저 선택해주세요.");return;}
     CFG.typeCategories[t]=[...typeCategoryChecks.querySelectorAll("input:checked")].map(x=>x.value);
     commitMgmtDraft("유형별 평가설정");
   };
