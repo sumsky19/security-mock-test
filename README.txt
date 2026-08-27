@@ -1,20 +1,27 @@
-[SK쉴더스 모의테스트 PWA - PC/아이폰 중앙DB 연동 v10]
+SK쉴더스 모의테스트 v8 - PC ↔ iPhone 중앙DB 연동판
 
-Supabase 프로젝트 연결정보가 backend-config.js에 반영된 배포용 파일입니다.
+핵심
+- 기존 PWA UI/평가기능 유지
+- 설정관리 데이터와 평가결과를 Supabase 중앙 DB에 저장
+- PC와 iPhone에서 같은 관리자 계정으로 로그인하면 동일 데이터 공유
+- 기존 localStorage 데이터가 서버에 없을 때 최초 로그인 시 자동 업로드
 
-포함 기능
-- PC/아이폰 동일 계정 로그인
-- 구역/구역유형/평가항목/유형별 평가설정 중앙 저장
-- 평가결과 중앙 저장 및 조회/삭제
-- 기존 모바일 UI 및 평가 로직 유지
-- PWA 및 GitHub Pages 배포 지원
-
-배포
-1. GitHub Pages 저장소의 기존 파일을 이 압축파일의 파일로 덮어쓰기
-2. backend-config.js는 반드시 함께 업로드
-3. Supabase에서 이미 실행한 supabase-setup.sql은 다시 실행할 필요 없음
-4. PC/아이폰에서 동일한 Supabase 사용자 계정으로 로그인
+설정 순서
+1. Supabase 프로젝트 생성
+2. SQL Editor에서 supabase-setup.sql 전체 실행
+3. Supabase Authentication > Users에서 관리자 이메일/비밀번호 계정 생성
+4. Project URL과 anon/publishable key를 backend-config.js에 입력
+5. 아래 6개 파일을 GitHub Pages에 덮어쓰기/업로드
+   index.html
+   backend-config.js
+   manifest.webmanifest
+   sw.js
+   icon-192.png
+   icon-512.png
+   skshieldus-logo.png
+6. PC와 iPhone에서 같은 계정으로 로그인
 
 주의
-- backend-config.js에는 브라우저용 Publishable key만 포함되어 있습니다.
-- Secret/service_role key는 포함하지 않습니다.
+- backend-config.js에는 anon/publishable key만 사용
+- service_role key는 절대 넣지 말 것
+- RLS 정책은 로그인한 본인 계정만 자신의 설정/평가결과를 읽고 쓸 수 있게 제한

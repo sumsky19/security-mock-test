@@ -1,6 +1,5 @@
-// Supabase 연결 설정
-// 브라우저에서 사용하는 Publishable key만 넣습니다. Secret key는 넣지 마세요.
+// Supabase 공개용 설정값입니다. Secret key/service_role key는 넣지 않습니다.
 window.BACKEND_CONFIG = {
-  url: "https://olbeyljtevfjdpryhtjq.supabase.co",
+  url: "https://olbeyljtvefjdrpyhtjq.supabase.co",
   anonKey: "sb_publishable_tyM9IJHggQnbr5b4uj9tXw_YpqZ_R7w"
 };
