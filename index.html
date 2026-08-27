@@ -562,12 +562,42 @@ const DATA={"zones": {"A권역": ["SCM주현관", "경영지원본관", "P&T5주
   let CLOUD_USER_ID = "";
   function cloudEnabled(){return !!(CLOUD_CFG.url && CLOUD_CFG.anonKey);}
   function cloudHeaders(){return {apikey:CLOUD_CFG.anonKey,Authorization:"Bearer "+CLOUD_ACCESS_TOKEN,"Content-Type":"application/json"};}
-  async function cloudAuth(email,password){
-    const r=await fetch(CLOUD_CFG.url+"/auth/v1/token?grant_type=password",{method:"POST",headers:{apikey:CLOUD_CFG.anonKey,"Content-Type":"application/json"},body:JSON.stringify({email,password})});
-    const j=await r.json(); if(!r.ok) throw new Error(j.error_description||j.msg||"로그인에 실패했습니다.");
-    CLOUD_ACCESS_TOKEN=j.access_token||""; CLOUD_REFRESH_TOKEN=j.refresh_token||""; CLOUD_USER_ID=j.user?.id||"";
-    safeSet("security_cloud_access_token",CLOUD_ACCESS_TOKEN);safeSet("security_cloud_refresh_token",CLOUD_REFRESH_TOKEN);safeSet("security_cloud_user_id",CLOUD_USER_ID);
+async function cloudAuth(email, password) {
+  const r = await fetch(
+    CLOUD_CFG.url + "/auth/v1/token?grant_type=password",
+    {
+      method: "POST",
+      headers: {
+        "apikey": CLOUD_CFG.anonKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password
+      })
+    }
+  );
+
+  const j = await r.json();
+
+  if (!r.ok) {
+    throw new Error(
+      j.error_description ||
+      j.msg ||
+      j.message ||
+      "로그인에 실패했습니다."
+    );
   }
+
+  CLOUD_ACCESS_TOKEN = j.access_token || "";
+  CLOUD_REFRESH_TOKEN = j.refresh_token || "";
+  CLOUD_USER_ID = j.user?.id || "";
+
+  safeSet("security_cloud_access_token", CLOUD_ACCESS_TOKEN);
+  safeSet("security_cloud_refresh_token", CLOUD_REFRESH_TOKEN);
+
+  return true;
+}
   async function cloudRefresh(){
     if(!CLOUD_REFRESH_TOKEN) return false;
     const r=await fetch(CLOUD_CFG.url+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{apikey:CLOUD_CFG.anonKey,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:CLOUD_REFRESH_TOKEN})});
